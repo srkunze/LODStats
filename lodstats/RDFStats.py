@@ -423,7 +423,8 @@ class RDFStats(object):
         ns_stats = RDF.NS("http://example.org/XStats#")
         # FIXME?: our dataset
         dataset = RDF.Uri(self.url)
-        dataset_ns = RDF.NS("%s#" % self.url)
+        #dataset = dataset_uri
+        dataset_ns = RDF.NS("%s#" % dataset.__unicode__())
         # we're talking about datasets here
         void_model.append(RDF.Statement(dataset,ns_rdf.type,ns_void.Dataset))
         
