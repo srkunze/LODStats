@@ -411,19 +411,20 @@ class RDFStats(object):
         """docstring for noofnamespaces"""
         if self.format != 'sparql':
             return len(self.parser.namespaces_seen())
-    
-    def voidify(self, serialize_as = "ntriples"):
+            
+           
+    def update_model(self, dataset_uri, rdf_model):
         """present stats in VoID (http://www.w3.org/TR/void/)"""
         results = self.stats_results
-        void_model = RDF.Model()
+        void_model = rdf_model
         ns_void = RDF.NS("http://rdfs.org/ns/void#")
         ns_rdf = RDF.NS("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         ns_xs = RDF.NS("http://www.w3.org/2001/XMLSchema#")
         ns_qb = RDF.NS("http://purl.org/linked-data/cube#")
         ns_stats = RDF.NS("http://example.org/XStats#")
         # FIXME?: our dataset
-        dataset = RDF.Uri(self.url)
-        #dataset = dataset_uri
+        #dataset = RDF.Uri(self.url)
+        dataset = dataset_uri
         dataset_ns = RDF.NS("%s#" % dataset.__unicode__())
         # we're talking about datasets here
         void_model.append(RDF.Statement(dataset,ns_rdf.type,ns_void.Dataset))
@@ -440,9 +441,17 @@ class RDFStats(object):
         # voidify results from custom stats
         for stat in custom_stats.stats_to_do:
             stat.voidify(void_model, dataset)
-
+        
+        return void_model
+    
+    def voidify(self, serialize_as = "ntriples"):
+        model = self.get_model(RDF.Model())
+        
         # serialize to string and return
         serializer = RDF.Serializer(name=serialize_as)
+        if serialize_as == "ntriples":
+            return serializer.serialize_model_to_string(void_model)
+            
         serializer.set_namespace("void", "http://rdfs.org/ns/void#")
         serializer.set_namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         serializer.set_namespace("qb", "http://purl.org/linked-data/cube#")
