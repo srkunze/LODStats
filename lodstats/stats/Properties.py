@@ -56,6 +56,8 @@ class PropertiesAll(RDFStatInterface):
         self.distinct = self.results['distinct'] = {}
         self.distinct_subject = self.results['distinct_subject'] = {}
         self.distinct_object = self.results['distinct_object'] = {}
+        self.min_value = self.results['min_value'] = {}
+        self.max_value = self.results['max_value'] = {}
         self.distinct_seen = LimitedSizeDict(size_limit=300000) # FIXME: make limit configurable
 
     def count(self, s, p, o, s_blank, o_l, o_blank, statement):
@@ -75,6 +77,24 @@ class PropertiesAll(RDFStatInterface):
         if not self.distinct_seen.has_key(sp_hash):
             self.distinct_seen[sp_hash] = 1
             self.distinct_subject[p] = self.distinct_subject.get(p, 0) + 1
+            if o_l:
+                value = None
+                if str(statement.object.literal[2]) in [str(ns_xs.decimal), str(ns_xs.float), str(ns_xs.double)]:
+                    value = float(o)
+                if str(statement.object.literal[2]) in [str(ns_xs.int), str(ns_xs.integer)]:
+                    value = int(o)
+                    
+                if value is not None:
+                    if self.min_value.has_key(p):
+                        self.min_value[p] = min(self.min_value[p], value)
+                    else:
+                        self.min_value[p] = value
+
+                    if self.max_value.has_key(p):
+                        self.max_value[p] = max(self.max_value[p], value)
+                    else:
+                        self.max_value[p] = value
+
         # per object
         po = p+o
         if len(po) > 16:
@@ -104,6 +124,22 @@ class PropertiesAll(RDFStatInterface):
                 o_result = self.distinct_object[property_uri]
                 result_node = RDF.Node(literal=str(o_result), datatype=ns_xs.integer.uri)
                 void_model.append(RDF.Statement(pr_id, ns_void.distinctObjects, result_node))
+                
+            #FIXME: need to discuss which namespace for minValue and maxValue
+            if self.min_value.has_key(property_uri):
+                min_value = self.min_value[property_uri]
+                if isinstance(min_value, float):
+                    result_node = RDF.Node(literal=str(min_value), datatype=ns_xs.decimal.uri)
+                elif isinstance(min_value, int):
+                    result_node = RDF.Node(literal=str(min_value), datatype=ns_xs.integer.uri)
+                void_model.append(RDF.Statement(pr_id, ns_void.minValue, result_node))
+            if self.max_value.has_key(property_uri):
+                max_value = self.max_value[property_uri]
+                if isinstance(max_value, float):
+                    result_node = RDF.Node(literal=str(max_value), datatype=ns_xs.decimal.uri)
+                elif isinstance(max_value, int):
+                    result_node = RDF.Node(literal=str(max_value), datatype=ns_xs.integer.uri)
+                void_model.append(RDF.Statement(pr_id, ns_void.maxValue, result_node))
     
     def sparql(self, endpoint):
         pass

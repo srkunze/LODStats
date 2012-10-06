@@ -445,7 +445,7 @@ class RDFStats(object):
         return void_model
     
     def voidify(self, serialize_as = "ntriples"):
-        model = self.get_model(RDF.Model())
+        model = self.update_model(RDF.Model())
         
         # serialize to string and return
         serializer = RDF.Serializer(name=serialize_as)
