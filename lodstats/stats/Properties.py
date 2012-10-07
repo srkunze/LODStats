@@ -79,10 +79,15 @@ class PropertiesAll(RDFStatInterface):
             self.distinct_subject[p] = self.distinct_subject.get(p, 0) + 1
             if o_l:
                 value = None
-                if str(statement.object.literal[2]) in [str(ns_xs.decimal), str(ns_xs.float), str(ns_xs.double)]:
+                if str(statement.object.literal[2]) in [str(ns_xs.decimal), str(ns_xs.float), str(ns_xs.double)] or \
+                   p in ['http://www.w3.org/2003/01/geo/wgs84_pos#long',
+                         'http://www.w3.org/2003/01/geo/wgs84_pos#lat',
+                         'http://www.w3.org/2003/01/geo/wgs84_pos#alt']:
                     value = float(o)
-                if str(statement.object.literal[2]) in [str(ns_xs.int), str(ns_xs.integer)]:
+                elif str(statement.object.literal[2]) in [str(ns_xs.int), str(ns_xs.integer)]:
                     value = int(o)
+                elif str(statement.object.literal[2]) in [str(ns_xs.dateTime), str(ns_xs.date)]:
+                    value = o
                     
                 if value is not None:
                     if self.min_value.has_key(p):
@@ -132,6 +137,8 @@ class PropertiesAll(RDFStatInterface):
                     result_node = RDF.Node(literal=str(min_value), datatype=ns_xs.decimal.uri)
                 elif isinstance(min_value, int):
                     result_node = RDF.Node(literal=str(min_value), datatype=ns_xs.integer.uri)
+                elif isinstance(min_value, str):
+                    result_node = RDF.Node(literal=min_value, datatype=ns_xs.dateTime.uri)
                 void_model.append(RDF.Statement(pr_id, ns_void.minValue, result_node))
             if self.max_value.has_key(property_uri):
                 max_value = self.max_value[property_uri]
@@ -139,6 +146,8 @@ class PropertiesAll(RDFStatInterface):
                     result_node = RDF.Node(literal=str(max_value), datatype=ns_xs.decimal.uri)
                 elif isinstance(max_value, int):
                     result_node = RDF.Node(literal=str(max_value), datatype=ns_xs.integer.uri)
+                elif isinstance(max_value, str):
+                    result_node = RDF.Node(literal=max_value, datatype=ns_xs.dateTime.uri)
                 void_model.append(RDF.Statement(pr_id, ns_void.maxValue, result_node))
     
     def sparql(self, endpoint):
