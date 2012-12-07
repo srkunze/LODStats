@@ -20,7 +20,7 @@ import hashlib
 import RDF
 from LimitedSizeDict import LimitedSizeDict
 from RDFStatInterface import RDFStatInterface
-from lodstats.util.namespace import ns_xs, ns_void
+from lodstats.util.namespace import ns_xs, ns_void, ns_dstats
 import distincthelper as dh
 
 class PropertiesDefined(RDFStatInterface):
@@ -130,7 +130,6 @@ class PropertiesAll(RDFStatInterface):
                 result_node = RDF.Node(literal=str(o_result), datatype=ns_xs.integer.uri)
                 void_model.append(RDF.Statement(pr_id, ns_void.distinctObjects, result_node))
                 
-            #FIXME: need to discuss which namespace for minValue and maxValue
             if self.min_value.has_key(property_uri):
                 min_value = self.min_value[property_uri]
                 if isinstance(min_value, float):
@@ -139,7 +138,7 @@ class PropertiesAll(RDFStatInterface):
                     result_node = RDF.Node(literal=str(min_value), datatype=ns_xs.integer.uri)
                 elif isinstance(min_value, str):
                     result_node = RDF.Node(literal=min_value, datatype=ns_xs.dateTime.uri)
-                void_model.append(RDF.Statement(pr_id, ns_void.minValue, result_node))
+                void_model.append(RDF.Statement(pr_id, ns_dstats.minValue, result_node))
             if self.max_value.has_key(property_uri):
                 max_value = self.max_value[property_uri]
                 if isinstance(max_value, float):
@@ -148,7 +147,7 @@ class PropertiesAll(RDFStatInterface):
                     result_node = RDF.Node(literal=str(max_value), datatype=ns_xs.integer.uri)
                 elif isinstance(max_value, str):
                     result_node = RDF.Node(literal=max_value, datatype=ns_xs.dateTime.uri)
-                void_model.append(RDF.Statement(pr_id, ns_void.maxValue, result_node))
+                void_model.append(RDF.Statement(pr_id, ns_dstats.maxValue, result_node))
     
     def sparql(self, endpoint):
         pass

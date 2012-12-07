@@ -24,6 +24,7 @@ ns_void = RDF.NS("http://rdfs.org/ns/void#")
 ns_rdf = RDF.NS("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 ns_stats = RDF.NS("http://example.org/XStats#")
 ns_qb = RDF.NS("http://purl.org/linked-data/cube#")
+ns_dstats = RDF.NS("http://stats.lod2.eu/vocabulary/dataset#")
 
 def get_namespace(uri):
     '''extract namespace from uris'''
